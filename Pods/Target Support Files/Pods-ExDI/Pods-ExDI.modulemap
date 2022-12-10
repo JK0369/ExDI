@@ -1,0 +1,6 @@
+framework module Pods_ExDI {
+  umbrella header "Pods-ExDI-umbrella.h"
+
+  export *
+  module * { export * }
+}
