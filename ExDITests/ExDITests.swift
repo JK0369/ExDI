@@ -9,6 +9,9 @@
 import XCTest
 import Nimble
 import Quick
+import RxExpect
+import RxSwift
+import RxCocoa
 
 final class StubConfigService: ConfigServiceType {
     private var key = ""
@@ -144,6 +147,63 @@ final class SomeExample2Tests: QuickSpec {
                     print("it")
                     expect(value)
                         .to(equal(someStub))
+                }
+            }
+        }
+    }
+}
+
+final class RxExpectTests: XCTestCase {
+    func testSome() {
+        var sut: ViewModel!
+        var rxExpect: RxExpect!
+        
+        sut = ViewModel()
+        rxExpect = RxExpect()
+        rxExpect.retain(sut) // 테스트 도중 메모리 해제 방지
+        
+        rxExpect.input(sut.plusPublish, [
+            .next(10, 1),
+            .next(20, 2),
+            .next(30, 100)
+        ])
+        
+        rxExpect.assert(sut.cntBehavior) { events in
+            expect(events.elements).to(equal([0, 1, 3, 103]))
+        }
+    }
+}
+
+final class RxExpect2Tests: QuickSpec {
+    override func spec() {
+        describe("The user is logged in") {
+            print("describe")
+            var sut: ViewModel!
+            var rxExpect: RxExpect!
+            
+            beforeSuite {
+                print("beforeSuite")
+                sut = ViewModel()
+                rxExpect = RxExpect()
+                rxExpect.retain(sut) // 테스트 도중 메모리 해제 방지
+            }
+            
+            context("The user tap button") {
+                print("context")
+                beforeEach {
+                    rxExpect.input(sut.plusPublish, [
+                        .next(10, 1),
+                        .next(20, 2),
+                        .next(30, 100)
+                    ])
+                }
+                
+                it("result of count") {
+                    print("it")
+                    rxExpect.assert(sut.cntBehavior) { events in
+                        print("testing...")
+                        expect(events.elements).to(equal([-1, 1, 3, 103]))
+                    }
                 }
             }
         }
